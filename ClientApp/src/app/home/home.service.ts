@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams, HttpRequest, HttpEventType, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Pirate } from './pirate.model';
 import { Observable } from 'rxjs/Observable';
@@ -6,6 +6,7 @@ import { Observable } from 'rxjs/Observable';
 @Injectable()
 export class HomeService {
     private strawHatsApiUrl = 'http://localhost:5000/api/strawhats/';
+    private strawHatsUploadsApiUrl = 'http://localhost:5000/api/strawhatsUploads/';
 
     constructor(private http: HttpClient) {
     }
@@ -113,7 +114,7 @@ export class HomeService {
             });
     }
 
-    Create(pirate: Pirate){
+    Create(pirate: Pirate) {
         this.http.post(this.strawHatsApiUrl, pirate)
         .subscribe(
             res => {
@@ -122,6 +123,63 @@ export class HomeService {
             err => {
                 console.error(err);
             });
+    }
+
+    Update(id: number, pirate: Pirate) {
+        this.http.put(this.strawHatsApiUrl + id, pirate)
+        .subscribe(
+            res => {
+                console.log(res);
+            },
+            err => {
+                console.error(err);
+            });
+    }
+
+    Delete(id: number) {
+        this.http.delete(this.strawHatsApiUrl + id)
+        .subscribe(
+            res => {
+                console.log(res);
+            },
+            err => {
+                console.error(err);
+            });
+    }
+
+    UploadFile(file: File){
+        
+        const formData: FormData = new FormData();
+        formData.append('myfile', file, file.name);
+
+        // this.http.post(this.strawHatsUploadsApiUrl, formData, { reportProgress: true})
+        // .subscribe(
+        //     res => {
+        //         console.log(res);
+        //     },
+        //     err => {
+        //         console.error(err);
+        //     }
+        // );
+
+        const request = new HttpRequest('POST', this.strawHatsUploadsApiUrl, formData, { reportProgress: true});
+
+        this.http.request(request).subscribe(
+            event => {
+                if(event.type === HttpEventType.UploadProgress) {
+                    console.log(event.loaded+ "/"+ event.total + " done.");
+                }
+                else if(event instanceof HttpResponse){
+                    console.log("Upload complete.");
+                }
+            },
+            err => {
+                console.error(err);
+            },
+            () => {
+                console.log("Upload process complete.");
+            }
+        );        
     }
 
 }

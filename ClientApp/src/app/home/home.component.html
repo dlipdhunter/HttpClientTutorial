@@ -1,1 +1,11 @@
 
+<br>
+
+<input type="file" 
+        name="fileToUpload" 
+        id="fileToUpload" 
+        (change)="onFileChange($event.target.files)">
+<br>
+<input type="button" 
+        value="Upload" 
+        (click)="onUpload()">
